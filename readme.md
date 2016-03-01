@@ -5,17 +5,6 @@
 
 ## Usage
 
-```go
-const (
-	// Seconds is the format for unix timestamps in a DataPoint
-	Seconds = 0
-	// Milliseconds is the format for milliseconds timestamps used in certain databases
-	Milliseconds = 1
-	// Nanoseconds is a format for nanoseconds based timestamps
-	Nanoseconds = 2
-)
-```
-
 #### type DataPoint
 
 ```go
@@ -84,11 +73,24 @@ type StreamType int
 
 ```go
 const (
+	// Seconds is the format for unix timestamps in a DataPoint
+	Seconds = 0
+	// Milliseconds is the format for milliseconds timestamps used in certain databases
+	Milliseconds = 1
+	// Nanoseconds is a format for nanoseconds based timestamps
+	Nanoseconds = 2
+
+	// GaugeType is for recording float64 metric at given times
 	GaugeType StreamType = 1 << iota
+	// CountType is for recording the number of received entries in one second
 	CountType
+	// EventType is for recording an event as it happens
 	EventType
+	// HistogramType tracks the statistical distribution of a set of values
 	HistogramType
+	// SetType counts the number of unique elements in a group
 	SetType
+	// SimpleEventType sends an event with the provided title and text
 	SimpleEventType
 )
 ```
