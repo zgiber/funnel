@@ -31,7 +31,8 @@ tags.
 
 ```go
 type Gatherer interface {
-	Gather(dp DataPoint) error
+	Gather(DataPoint) error
+	Accepts(StreamType) bool
 }
 ```
 
