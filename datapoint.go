@@ -11,8 +11,21 @@ const (
 	Nanoseconds = 2
 )
 
+type StreamType int
+
+const (
+	GaugeType StreamType = 1 << iota
+	CountType
+	EventType
+	HistogramType
+	SetType
+	SimpleEventType
+)
+
 // DataPoint is an interface representing one measurement or sample
 type DataPoint interface {
+	MetricName() string
+	Type() StreamType
 	Tags() map[string]interface{}
 	Value() interface{}
 	TimeStamp() int64
@@ -24,6 +37,7 @@ type DataPoint interface {
 type Metric struct {
 	Name            string
 	TimeStampFormat uint8
+	Type            StreamType
 	Unit            string
 }
 
@@ -44,12 +58,20 @@ type dataPoint struct {
 	tags  map[string]interface{}
 }
 
+func (dp *dataPoint) MetricName() string {
+	return dp.Name
+}
+
 func (dp *dataPoint) Tags() map[string]interface{} {
 	return dp.tags
 }
 
 func (dp *dataPoint) Value() interface{} {
 	return dp.value
+}
+
+func (dp *dataPoint) Type() StreamType {
+	return dp.Metric.Type
 }
 
 func (dp *dataPoint) TimeStamp() int64 {
