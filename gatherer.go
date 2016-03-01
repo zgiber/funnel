@@ -10,6 +10,9 @@ type Gatherer interface {
 	Gather(dp DataPoint) error
 }
 
+// NewDataDogBackend returns a Gatherer which collects datapoints
+// to the specified DataDog address. It uses the datadog statsd package
+// with the buffered client.
 func NewDataDogBackend(addr string) (Gatherer, error) {
 	var c *statsd.Client
 	var err error
@@ -34,6 +37,9 @@ type dataDogBackend struct {
 	accepts      StreamType
 }
 
+// Gather implements Gatherer interface. It records the datapoint
+// to the backend, or returns error if the datapoint type is not
+// supported by the backend.
 func (ddb *dataDogBackend) Gather(dp DataPoint) error {
 
 	switch dp.Type() {
