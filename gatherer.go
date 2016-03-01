@@ -57,19 +57,17 @@ func (ddb *dataDogBackend) Gather(dp DataPoint) error {
 	return nil
 }
 
-func (ddb *dataDogBackend) gauge(dp DataPoint) (err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = fmt.Errorf(fmt.Sprint(r))
-		}
-	}()
+func (ddb *dataDogBackend) gauge(dp DataPoint) error {
 
 	tags := []string{}
 	for k, v := range dp.Tags() {
 		tags = append(tags, fmt.Sprintf("%s:%#v", k, v))
 	}
 
-	value := dp.Value().(float64)
+	value, ok := dp.Value().(float64)
+	if !ok {
+		return fmt.Errorf("invalid value type for gauge datapoint")
+	}
 
 	return ddb.client.Gauge(dp.MetricName(), value, tags, 1)
 }
