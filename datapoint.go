@@ -26,8 +26,6 @@ const (
 
 type StreamType int
 
-const ()
-
 // DataPoint is an interface representing one measurement or sample
 type DataPoint interface {
 	MetricName() string
