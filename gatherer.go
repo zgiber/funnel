@@ -7,7 +7,8 @@ import (
 )
 
 type Gatherer interface {
-	Gather(dp DataPoint) error
+	Gather(DataPoint) error
+	Accepts(StreamType) bool
 }
 
 // NewDataDogBackend returns a Gatherer which collects datapoints
@@ -72,7 +73,9 @@ func (ddb *dataDogBackend) gauge(dp DataPoint) error {
 	return ddb.client.Gauge(dp.MetricName(), value, tags, 1)
 }
 
-func (ddb *dataDogBackend) canHandle(typ StreamType) bool {
+// Accepts returns whether the backend can handle the
+// provided datapoint type.
+func (ddb *dataDogBackend) Accepts(typ StreamType) bool {
 	return typ&ddb.accepts > 0
 }
 
