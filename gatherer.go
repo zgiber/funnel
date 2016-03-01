@@ -14,7 +14,7 @@ type Gatherer interface {
 // NewDataDogBackend returns a Gatherer which collects datapoints
 // to the specified DataDog address. It uses the datadog statsd package
 // with the buffered client.
-func NewDataDogBackend(addr string) (Gatherer, error) {
+func NewDataDogBackend(addr string, prefix string) (Gatherer, error) {
 	var c *statsd.Client
 	var err error
 
@@ -23,6 +23,7 @@ func NewDataDogBackend(addr string) (Gatherer, error) {
 		return nil, err
 	}
 
+	c.Namespace = prefix + "."
 	ddb := &dataDogBackend{
 		c,
 		make(chan DataPoint),
