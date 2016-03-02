@@ -10,6 +10,11 @@ type Gatherer interface {
 	Gather(DataPoint) error
 }
 
+type BatchGatherer interface {
+	Gatherer
+	GatherBatch([]DataPoint) error
+}
+
 // NewDatadogGatherer returns a Gatherer which collects datapoints
 // to the specified DataDog address. It uses the datadog statsd package
 // with the buffered client.
@@ -41,6 +46,21 @@ type dataDogBackend struct {
 // supported by the backend.
 func (ddb *dataDogBackend) Gather(dp DataPoint) error {
 	return ddb.gauge(dp)
+}
+
+func (ddb *dataDogBackend) GatherBatch(dps []DataPoint) MultiError {
+	var errors []error
+	for _, dp := range dps {
+		if err := ddb.gauge(dp); err != nil {
+			errors = append(errors, err)
+		}
+	}
+
+	if errors != nil {
+		return &BatchGathererError{errors}
+	}
+
+	return nil
 }
 
 func (ddb *dataDogBackend) gauge(dp DataPoint) error {
