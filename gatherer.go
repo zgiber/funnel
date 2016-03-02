@@ -46,6 +46,11 @@ func (ddb *dataDogBackend) Gather(dp DataPoint) error {
 func (ddb *dataDogBackend) gauge(dp DataPoint) error {
 
 	tags := []string{}
+	tagsMap := dp.Tags()
+	if u := dp.Unit(); u != "" {
+		tagsMap["unit"] = u
+	}
+
 	for k, v := range dp.Tags() {
 		tags = append(tags, fmt.Sprintf("%s:%#v", k, v))
 	}
