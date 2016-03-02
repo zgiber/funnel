@@ -5,27 +5,18 @@ import (
 	"time"
 )
 
-const (
-	// Seconds is the format for unix timestamps in a DataPoint
-	Seconds = "s"
-	// Milliseconds is the format for milliseconds timestamps used in certain databases
-	Milliseconds = "ms"
-	// Nanoseconds is a format for nanoseconds based timestamps
-	Nanoseconds = "s"
-)
-
-// DataPoint is an interface representing one measurement or sample
-type DataPoint interface {
+// Datapoint is an interface representing one measurement or sample
+type Datapoint interface {
 	MetricName() string
 	Tags() map[string]interface{}
 	Value() interface{}
 	Unit() string
-	TimeStamp() int64
+	Time() time.Time
 }
 
-// NewDataPoint returns a dataPoint for a metric with a given value, time, and tags.
-func NewDataPoint(m *Metric, value interface{}, t time.Time, tags map[string]interface{}) DataPoint {
-	return &dataPoint{
+// NewDatapoint returns a datapoint for a metric with a given value, time, and tags.
+func NewDatapoint(m *Metric, value interface{}, t time.Time, tags map[string]interface{}) Datapoint {
+	return &datapoint{
 		Metric: m,
 		value:  value,
 		t:      t,
@@ -34,24 +25,22 @@ func NewDataPoint(m *Metric, value interface{}, t time.Time, tags map[string]int
 }
 
 // Metric is a struct with fields that
-// have the same value in every DataPoint
+// have the same value in every Datapoint
 // within a measurement/event stream
 type Metric struct {
-	name            string
-	timeStampFormat string
-	unit            string
+	name string
+	unit string
 }
 
 // NewMetric returns a metric which can be used for creating datapoints.
-func NewMetric(name, unit, timeStampFmt string) *Metric {
+func NewMetric(name, unit string) *Metric {
 	return &Metric{
-		name:            name,
-		timeStampFormat: timeStampFmt,
-		unit:            unit,
+		name: name,
+		unit: unit,
 	}
 }
 
-type dataPoint struct {
+type datapoint struct {
 	*Metric
 	l     sync.RWMutex
 	value interface{}
@@ -59,11 +48,11 @@ type dataPoint struct {
 	tags  map[string]interface{}
 }
 
-func (dp *dataPoint) MetricName() string {
+func (dp *datapoint) MetricName() string {
 	return dp.name
 }
 
-func (dp *dataPoint) Tags() map[string]interface{} {
+func (dp *datapoint) Tags() map[string]interface{} {
 	c := map[string]interface{}{}
 	dp.l.RLock()
 
@@ -77,24 +66,14 @@ func (dp *dataPoint) Tags() map[string]interface{} {
 	return c
 }
 
-func (dp *dataPoint) Value() interface{} {
+func (dp *datapoint) Value() interface{} {
 	return dp.value
 }
 
-func (dp *dataPoint) Unit() string {
+func (dp *datapoint) Unit() string {
 	return dp.unit
 }
 
-func (dp *dataPoint) TimeStamp() int64 {
-	switch dp.timeStampFormat {
-	case "s":
-		return dp.t.UTC().Unix()
-	case "ms":
-		return dp.t.UTC().UnixNano() / 1000
-	case "ns":
-		return dp.t.UTC().UnixNano()
-	default:
-		// for now we're using seconds as default timestamp
-		return dp.t.UTC().Unix()
-	}
+func (dp *datapoint) Time() time.Time {
+	return dp.t
 }
