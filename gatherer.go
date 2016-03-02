@@ -2,6 +2,7 @@ package funnel
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/DataDog/datadog-go/statsd"
 )
@@ -81,10 +82,16 @@ func (ddb *dataDogBackend) gauge(dp Datapoint) error {
 		value = float64(t)
 	case int32:
 		value = float64(t)
+	case uint32:
+		value = float64(t)
 	case int64:
 		value = float64(t)
+	case uint64:
+		value = float64(t)
+	case int:
+		value = float64(t)
 	default:
-		return fmt.Errorf("unsupported datapoint value type")
+		return fmt.Errorf("unsupported datapoint value type: %s", reflect.TypeOf(t).Name())
 	}
 
 	return ddb.client.Gauge(dp.MetricName(), value, tags, 1)

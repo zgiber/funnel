@@ -1,6 +1,7 @@
 package background
 
 import (
+	"log"
 	"runtime"
 	"time"
 
@@ -34,8 +35,15 @@ func (bgc *Collector) Collect() {
 	for {
 		select {
 		case <-tick:
-			bgc.gatherer.GatherBatch(memStats())
-			bgc.gatherer.Gather(numGoroutines())
+			err := bgc.gatherer.GatherBatch(memStats())
+			if err != nil {
+				log.Println(err)
+			}
+
+			err = bgc.gatherer.Gather(numGoroutines())
+			if err != nil {
+				log.Println(err)
+			}
 		}
 	}
 }
