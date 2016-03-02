@@ -1,6 +1,9 @@
 package funnel
 
-import "time"
+import (
+	"sync"
+	"time"
+)
 
 const (
 	// Seconds is the format for unix timestamps in a DataPoint
@@ -50,6 +53,7 @@ func NewMetric(name, unit, timeStampFmt string) *Metric {
 
 type dataPoint struct {
 	*Metric
+	l     sync.RWMutex
 	value interface{}
 	t     time.Time
 	tags  map[string]interface{}
@@ -60,7 +64,17 @@ func (dp *dataPoint) MetricName() string {
 }
 
 func (dp *dataPoint) Tags() map[string]interface{} {
-	return dp.tags
+	c := map[string]interface{}{}
+	dp.l.RLock()
+
+	// returns a copy of the tags
+	// instead the map itself
+	for k, v := range dp.tags {
+		c[k] = v
+	}
+
+	dp.l.RUnlock()
+	return c
 }
 
 func (dp *dataPoint) Value() interface{} {
