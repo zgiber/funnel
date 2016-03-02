@@ -18,7 +18,7 @@ type BatchGatherer interface {
 // NewDatadogGatherer returns a Gatherer which collects datapoints
 // to the specified DataDog address. It uses the datadog statsd package
 // with the buffered client.
-func NewDatadogGatherer(addr string, prefix string) (Gatherer, error) {
+func NewDatadogGatherer(addr string, prefix string) (BatchGatherer, error) {
 	var c *statsd.Client
 	var err error
 
