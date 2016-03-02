@@ -7,12 +7,12 @@ import (
 )
 
 type Gatherer interface {
-	Gather(DataPoint) error
+	Gather(Datapoint) error
 }
 
 type BatchGatherer interface {
 	Gatherer
-	GatherBatch([]DataPoint) error
+	GatherBatch([]Datapoint) error
 }
 
 // NewDatadogGatherer returns a Gatherer which collects datapoints
@@ -30,25 +30,23 @@ func NewDatadogGatherer(addr string, prefix string) (BatchGatherer, error) {
 	c.Namespace = prefix + "."
 	ddb := &dataDogBackend{
 		c,
-		make(chan DataPoint),
 	}
 
 	return ddb, nil
 }
 
 type dataDogBackend struct {
-	client       *statsd.Client
-	dataPointsIn chan DataPoint
+	client *statsd.Client
 }
 
 // Gather implements Gatherer interface. It records the datapoint
 // to the backend, or returns error if the datapoint type is not
 // supported by the backend.
-func (ddb *dataDogBackend) Gather(dp DataPoint) error {
+func (ddb *dataDogBackend) Gather(dp Datapoint) error {
 	return ddb.gauge(dp)
 }
 
-func (ddb *dataDogBackend) GatherBatch(dps []DataPoint) MultiError {
+func (ddb *dataDogBackend) GatherBatch(dps []Datapoint) error {
 	var errors []error
 	for _, dp := range dps {
 		if err := ddb.gauge(dp); err != nil {
@@ -63,7 +61,7 @@ func (ddb *dataDogBackend) GatherBatch(dps []DataPoint) MultiError {
 	return nil
 }
 
-func (ddb *dataDogBackend) gauge(dp DataPoint) error {
+func (ddb *dataDogBackend) gauge(dp Datapoint) error {
 
 	tags := []string{}
 	tagsMap := dp.Tags()
