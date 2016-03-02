@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	g, err := funnel.NewDataDogBackend("127.0.0.1:8125", "testapp")
+	g, err := funnel.NewDatadogGatherer("127.0.0.1:8125", "testapp")
 	if err != nil {
 		log.Fatal(err)
 	}
