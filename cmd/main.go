@@ -14,10 +14,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	m := &funnel.Metric{}
-	m.Name = "testmeasurement"
-	m.TimeStampFormat = funnel.Milliseconds
-	m.Type = funnel.GaugeType
+	m := funnel.NewMetric("test2", "percent", "ms")
 
 	for {
 		time.Sleep(500 * time.Millisecond)

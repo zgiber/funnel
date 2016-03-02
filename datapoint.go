@@ -16,6 +16,7 @@ type DataPoint interface {
 	MetricName() string
 	Tags() map[string]interface{}
 	Value() interface{}
+	Unit() string
 	TimeStamp() int64
 }
 
@@ -33,17 +34,17 @@ func NewDataPoint(m *Metric, value interface{}, t time.Time, tags map[string]int
 // have the same value in every DataPoint
 // within a measurement/event stream
 type Metric struct {
-	Name            string
-	TimeStampFormat string
-	Unit            string
+	name            string
+	timeStampFormat string
+	unit            string
 }
 
 // NewMetric returns a metric which can be used for creating datapoints.
 func NewMetric(name, unit, timeStampFmt string) *Metric {
 	return &Metric{
-		Name:            name,
-		TimeStampFormat: timeStampFmt,
-		Unit:            unit,
+		name:            name,
+		timeStampFormat: timeStampFmt,
+		unit:            unit,
 	}
 }
 
@@ -55,7 +56,7 @@ type dataPoint struct {
 }
 
 func (dp *dataPoint) MetricName() string {
-	return dp.Name
+	return dp.name
 }
 
 func (dp *dataPoint) Tags() map[string]interface{} {
@@ -66,8 +67,12 @@ func (dp *dataPoint) Value() interface{} {
 	return dp.value
 }
 
+func (dp *dataPoint) Unit() string {
+	return dp.unit
+}
+
 func (dp *dataPoint) TimeStamp() int64 {
-	switch dp.TimeStampFormat {
+	switch dp.timeStampFormat {
 	case "s":
 		return dp.t.UTC().Unix()
 	case "ms":
